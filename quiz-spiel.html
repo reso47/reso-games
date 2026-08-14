@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reso • Quiz Lösen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 900;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .zurueck-link {
+            align-self: flex-start;
+            color: #88ccff;
+            text-decoration: none;
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            font-weight: bold;
+        }
+
+        .zurueck-link:hover {
+            color: #ffcc00;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 3rem;
+            background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .quiz-kasten {
+            background: #151520;
+            border: 5px solid #444466;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .frage-nummer {
+            font-size: 1.8rem;
+            color: #ffcc00;
+            background: rgba(40, 60, 120, 0.25);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: 3px solid #4466aa;
+        }
+
+        .frage-text {
+            font-size: 1.6rem;
+            line-height: 1.7;
+            color: #ffffff;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #eingabe {
+            width: 100%;
+            padding: 1.2rem;
+            font-size: 1.4rem;
+            border: 3px solid #7777aa;
+            border-radius: 12px;
+            background: #1a1a2e;
+            color: #ffffff;
+            outline: none;
+            font-weight: bold;
+        }
+
+        #eingabe:focus {
+            border-color: #ffcc00;
+            box-shadow: 0 0 12px rgba(255,204,0,0.4);
+        }
+
+        .buttons-bereich {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 900;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-pruefen { background: #4cd964; color: #000; }
+        .btn-aufloesen { background: #ff9500; color: #000; }
+        .btn-neu { background: #007aff; color: #fff; }
+
+        .ergebnis-bereich {
+            font-size: 1.4rem;
+            padding: 1.2rem;
+            border-radius: 10px;
+            width: 100%;
+            display: none;
+            font-weight: bold;
+        }
+
+        .richtig { background: rgba(76, 217, 100, 0.2); color: #4cd964; border: 3px solid #4cd964; }
+        .falsch { background: rgba(255, 59, 48, 0.2); color: #ff3b30; border: 3px solid #ff3b30; }
+        .loesung { background: rgba(255, 149, 0, 0.2); color: #ff9500; border: 3px solid #ff9500; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="zurueck-link">← Zurück zur Startseite</a>
+
+    <h1>Quiz Lösen</h1>
+
+    <div class="quiz-kasten">
+        <div class="frage-nummer">Frage <span id="fragen-zahl">1</span></div>
+        <div class="frage-text" id="frage-inhalt">Lädt...</div>
+
+        <input type="text" id="eingabe" placeholder="Deine Antwort hier eingeben...">
+
+        <div class="buttons-bereich">
+            <button class="btn-pruefen" onclick="pruefeAntwort()">Antwort prüfen</button>
+            <button class="btn-aufloesen" onclick="zeigeLoesung()">Auflösen</button>
+            <button class="btn-neu" onclick="neuesQuiz()">Neue Frage</button>
+        </div>
+
+        <div class="ergebnis-bereich" id="ergebnis-anzeige"></div>
+    </div>
+
+    <script>
+        // === SEHR VIELE FRAGEN - KEINE DOPPELUNGEN MEHR ===
+        const quizListe = [
+            { frage: "Gibt es eine gerade Kurve?", loesung: "Nein, eine Kurve ist per Definition nicht gerade." },
+            { frage: "Wie viele Monate haben mindestens 28 Tage?", loesung: "Alle 12 Monate." },
+            { frage: "Was wird nass, je mehr man es trocknet?", loesung: "Ein Handtuch." },
+            { frage: "Was gehört dir, aber andere benutzen es viel öfter als du selbst?", loesung: "Dein Name." },
+            { frage: "Was ist voller Löcher, hält aber trotzdem Wasser?", loesung: "Ein Schwamm." },
+            { frage: "Was läuft, aber hat keine Beine?", loesung: "Wasser, eine Uhr oder eine Nase." },
+            { frage: "Was hat einen Hals, aber keinen Kopf?", loesung: "Eine Flasche, ein Krug oder eine Gitarre." },
+            { frage: "Was kann man brechen, ohne es zu berühren?", loesung: "Ein Versprechen, die Stille oder einen Rekord." },
+            { frage: "Je mehr du davon wegnimmst, desto größer wird es. Was ist das?", loesung: "Ein Loch." },
+            { frage: "Was geht bergauf und bergab, bleibt aber immer an derselben Stelle?", loesung: "Eine Straße, eine Treppe oder ein Weg." },
+            { frage: "Was hat Zähne, aber kann nicht beißen?", loesung: "Ein Kamm, eine Säge oder ein Reißverschluss." },
+            { frage: "Welche Frage kann man niemals mit 'Ja' beantworten?", loesung: "Schläfst du gerade?" },
+            { frage: "Was fliegt ohne Flügel und weint ohne Augen?", loesung: "Eine Wolke." },
+            { frage: "Was ist so leicht wie eine Feder, aber selbst der stärkste Mann kann es nicht lange halten?", loesung: "Der Atem." },
+            { frage: "Was kann man fangen, aber nicht werfen?", loesung: "Eine Erkältung, einen Gedanken oder einen Einfall." },
+            { frage: "Welches Wort wird kürzer, wenn man einen Buchstaben hinzufügt?", loesung: "Kurz → kürzer." },
+            { frage: "Was schmeckt besser als es riecht?", loesung: "Die Zunge." },
+            { frage: "Was hat viele Blätter, aber ist kein Baum?", loesung: "Ein Buch." },
+            { frage: "Was ist immer vor dir, aber du kannst es nie erreichen?", loesung: "Die Zukunft." },
+            { frage: "Was ist immer bei dir, aber du verlierst es, wenn du schläfst?", loesung: "Das Bewusstsein." },
+            { frage: "Was steigt immer auf, aber kommt nie wieder herunter?", loesung: "Das Alter oder Rauch." },
+            { frage: "Was ist größer, wenn man es umdreht?", loesung: "Die Zahl 6." },
+            { frage: "Was hat vier Beine, aber kann nicht laufen?", loesung: "Ein Tisch, ein Stuhl oder ein Bett." },
+            { frage: "Was ist schwarz, wenn du es kaufst, rot wenn du es benutzt und grau wenn du es wegwirfst?", loesung: "Holzkohle." },
+            { frage: "Was kann man sehen, aber nicht berühren?", loesung: "Ein Schatten, der Himmel oder die Sonne." },
+            { frage: "Was kommt einmal in jeder Minute, zweimal in jeder Sekunde, aber nie in tausend Jahren?", loesung: "Der Buchstabe 'E'." },
+            { frage: "Welches Tier springt höher als ein Haus?", loesung: "Jedes Tier – Häuser springen nicht." },
+            { frage: "Was ist trocken, wenn es gewaschen wird?", loesung: "Ein Handtuch." },
+            { frage: "Was hat ein Ende, aber keinen Anfang?", loesung: "Ein Weg, ein Seil oder das Leben." },
+            { frage: "Was ist schwerer als Gold, aber kostet nichts?", loesung: "Schuld oder ein Geheimnis." },
+            { frage: "Was wird kleiner, je mehr man es benutzt?", loesung: "Ein Bleistift, eine Kerze oder ein Radiergummi." },
+            { frage: "Was hat ein Gesicht, aber keinen Mund?", loesung: "Eine Uhr oder ein Würfel." },
+            { frage: "Was kann man öffnen, aber nicht schließen?", loesung: "Eine Tür, eine Flasche oder eine Möglichkeit." },
+            { frage: "Was ist überall, aber nirgends zu sehen?", loesung: "Die Luft." },
+            { frage: "Was ist immer da, auch wenn du es nicht siehst?", loesung: "Die Schwerkraft oder die Zeit." },
+            { frage: "Was hat Arme, aber keine Hände?", loesung: "Ein Stuhl, eine Brücke oder eine Jacke." },
+            { frage: "Was läuft um das Haus herum, ohne sich zu bewegen?", loesung: "Der Zaun oder die Mauer." },
+            { frage: "Was ist nass und trocken zugleich?", loesung: "Ein nasses Handtuch oder ein See." },
+            { frage: "Was hat Flügel, aber kann nicht fliegen?", loesung: "Ein Gebäude, ein Fenster oder eine Ente, die verletzt ist." },
+            { frage: "Was wächst, wenn es regnet?", loesung: "Ein Pilz, Gras oder der Wasserstand." },
+            { frage: "Was hat keine Stimme, aber erzählt dir alles?", loesung: "Ein Buch, eine Zeitung oder ein Bild." },
+            { frage: "Was ist kalt, auch wenn du es in die Sonne legst?", loesung: "Eis." },
+            { frage: "Was ist rund, hat viele Löcher und hält trotzdem Wasser?", loesung: "Ein Sieb oder ein Schwamm." },
+            { frage: "Was geht durch Wände, ohne sie zu beschädigen?", loesung: "Licht, Schall oder der Wind." },
+            { frage: "Was ist am Anfang von Ewigkeit, am Ende von Zeit und Raum?", loesung: "Der Buchstabe 'T'." },
+            { frage: "Was hat viele Augen, aber kann nicht sehen?", loesung: "Eine Kartoffel, eine Nadel oder ein Sieb." },
+            { frage: "Was hat viele Ohren, aber kann nicht hören?", loesung: "Ein Maisfeld oder eine Pflanze." },
+            { frage: "Was hat viele Zungen, aber kann nicht sprechen?", loesung: "Ein Schuh, eine Glocke oder ein Feuer." },
+            { frage: "Was ist weiß, wenn es schmutzig ist und schwarz, wenn es sauber ist?", loesung: "Eine Tafel oder ein schwarzes Brett." },
+            { frage: "Was fällt immer, aber bricht nie?", loesung: "Der Schnee, Regen oder die Nacht." },
+            { frage: "Was ist länger als ein Leben, kürzer als ein Augenblick?", loesung: "Die Zeit." },
+            { frage: "Was hat keine Beine, aber reist um die ganze Welt?", loesung: "Ein Brief, eine Briefmarke oder das Wasser." },
+            { frage: "Was ist so groß wie ein Elefant, aber wiegt nichts?", loesung: "Der Schatten eines Elefanten." },
+            { frage: "Was kann man nur brechen, wenn man es nicht hat?", loesung: "Die Stille." },
+            { frage: "Was hat einen Deckel, aber keinen Topf?", loesung: "Ein Auge, eine Flasche oder ein Kasten." },
+            { frage: "Was ist immer falsch, auch wenn es wahr ist?", loesung: "Das Wort 'falsch'." },
+            { frage: "Was ist teurer, wenn es leer ist?", loesung: "Eine Tankstelle oder ein leeres Portemonnaie." },
+            { frage: "Was fliegt am höchsten, ohne Flügel zu haben?", loesung: "Der Gedanke oder der Rauch." },
+            { frage: "Was ist schneller als das Licht?", loesung: "Der Gedanke." },
+            { frage: "Was hat keine Farbe, aber man kann es sehen?", loesung: "Die Luft oder das Glas." },
+            { frage: "Was ist überall, aber nimmt keinen Platz ein?", loesung: "Die Zeit oder die Luft." },
+            { frage: "Was wird mehr, je mehr man es teilt?", loesung: "Das Wissen oder die Freude." },
+            { frage: "Was ist leicht zu werfen, aber schwer zu fangen?", loesung: "Ein Ball, ein Blick oder ein Lächeln." },
+            { frage: "Was hat einen Ring, aber keinen Finger?", loesung: "Ein Baum, ein Telefon oder eine Welle." },
+            { frage: "Was läuft, aber hat keine Füße?", loesung: "Die Zeit, ein Fluss oder eine Uhr." },
+            { frage: "Was ist immer bei dir, aber geht nie mit dir?", loesung: "Dein Schatten." },
+            { frage: "Was kann man nicht aufheben, auch wenn es vor deinen Füßen liegt?", loesung: "Dein Schatten." },
+            { frage: "Was ist am schwersten zu tragen?", loesung: "Ein Geheimnis oder Sorgen." },
+            { frage: "Was ist das Einzige, was du gibst, aber trotzdem behältst?", loesung: "Dein Wort, dein Wissen oder deine Liebe." },
+            { frage: "Was ist das Einzige, was größer wird, wenn man es teilt?", loesung: "Das Glück." },
+            { frage: "Was hat keine Tür, aber man kann hineingehen?", loesung: "Ein Loch, ein Zelt oder ein Raum." },
+            { frage: "Was ist immer da, aber man kann es nicht fassen?", loesung: "Die Zeit." },
+            { frage: "Was ist dunkler, je mehr Licht darauf fällt?", loesung: "Der Schatten." },
+            { frage: "Was ist rund wie ein Ball, aber flach wie ein Teller?", loesung: "Eine Münze oder eine Scheibe." },
+            { frage: "Was hat keine Zähne, aber kann alles zermalmen?", loesung: "Die Zeit oder das Wasser." },
+            { frage: "Was ist am Anfang des Tages am kleinsten und am Ende am größten?", loesung: "Der Schatten." },
+            { frage: "Was geht auf und ab, aber bewegt sich nicht?", loesung: "Eine Treppe oder ein Berg." },
+            { frage: "Was ist heiß, wenn es kalt ist?", loesung: "Eis, wenn es schmilzt." },
+            { frage: "Was ist das Einzige, was du verlieren kannst, ohne es zu besitzen?", loesung: "Dein Gleichgewicht oder die Zeit." },
+            { frage: "Was ist immer in der Mitte von Paris?", loesung: "Der Buchstabe 'R'." },
+            { frage: "Was hat drei Buchstaben, fängt mit 'E' an und endet mit 'E', aber enthält nur einen Buchstaben?", loesung: "Ein Umschlag." },
+            { frage: "Was ist größer als Gott, böser als der Teufel, die Armen haben es, die Reichen brauchen es, und wenn du es isst, stirbst du?", loesung: "Nichts." },
+            { frage: "Was geht durch alle Häuser, aber bleibt immer draußen?", loesung: "Der Wind." },
+            { frage: "Was hat keine Stimme, aber kann weinen?", loesung: "Eine Wolke oder eine Kerze." },
+            { frage: "Was ist das Einzige, was man nicht zweimal machen kann?", loesung: "Zum ersten Mal etwas tun." },
+            { frage: "Was ist immer falsch geschrieben im Wörterbuch?", loesung: "Das Wort 'falsch'." },
+            { frage: "Was hat 13 Herzen, aber keine anderen Organe?", loesung: "Ein Kartenspiel." },
+            { frage: "Was ist so leicht wie eine Feder, aber selbst der stärkste Mann kann es nicht eine Minute lang halten?", loesung: "Den Atem." },
+            { frage: "Was ist das Einzige, was du nicht siehst, auch wenn es direkt vor dir ist?", loesung: "Deine Augenlider." },
+            { frage: "Was hat einen Kopf, aber kein Gehirn?", loesung: "Ein Nagel, ein Streichholz oder ein Bett." },
+            { frage: "Was ist immer da, auch wenn du es nicht willst?", loesung: "Die Zeit oder das Alter." },
+            { frage: "Was ist das Einzige, was du behältst, auch wenn du es weitergibst?", loesung: "Dein Wissen." },
+            { frage: "Was kann man nicht festhalten, auch wenn man es will?", loesung: "Die Zeit oder den Wind." },
+            { frage: "Was ist das Einzige, was wächst, wenn es abnimmt?", loesung: "Das Alter." },
+            { frage: "Was hat viele Seiten, aber keine Beine?", loesung: "Ein Buch." },
+            { frage: "Was ist das Einzige, was du nicht zurückbekommst, wenn es einmal vergangen ist?", loesung: "Die Zeit." }
+        ];
+
+        let aktuelleFrage;
+        let genutzteFragen = [];
+        let fragenNummer = 1;
+
+        function neueFrage() {
+            // Alle Fragen wieder freigeben, wenn alle benutzt wurden
+            if (genutzteFragen.length >= quizListe.length) {
+                genutzteFragen = [];
+            }
+
+            // Zufällige, noch nicht genutzte Frage wählen
+            let index;
+            do {
+                index = Math.floor(Math.random() * quizListe.length);
+            } while (genutzteFragen.includes(index));
+
+            genutzteFragen.push(index);
+            aktuelleFrage = quizListe[index];
+            fragenNummer++;
+
+            document.getElementById("frage-inhalt").textContent = aktuelleFrage.frage;
+            document.getElementById("eingabe").value = "";
+            document.getElementById("ergebnis-anzeige").style.display = "none";
+            document.getElementById("fragen-zahl").textContent = fragenNummer;
+        }
+
+        function normalisiereText(text) {
+            return text.toLowerCase()
+                .replace(/[.,!?;:()]/g, "")
+                .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+                .trim();
+        }
+
+        function pruefeAntwort() {
+            const eingabe = normalisiereText(document.getElementById("eingabe").value);
+            const loesung = normalisiereText(aktuelleFrage.loesung);
+            const bereich = document.getElementById("ergebnis-anzeige");
+
+            const istRichtig = loesung.includes(eingabe) || eingabe.includes(loesung);
+
+            bereich.style.display = "block";
+            bereich.className = "ergebnis-bereich " + (istRichtig ? "richtig" : "falsch");
+            bereich.textContent = istRichtig ? "✅ Richtig!" : "❌ Noch nicht richtig – versuch es nochmal!";
+        }
+
+        function zeigeLoesung() {
+            const bereich = document.getElementById("ergebnis-anzeige");
+            bereich.style.display = "block";
+            bereich.className = "ergebnis-bereich loesung";
+            bereich.textContent = "💡 Lösung: " + aktuelleFrage.loesung;
+        }
+
+        function neuesQuiz() {
+            neueFrage();
+        }
+
+        // Erste Frage sofort anzeigen
+        neueFrage();
+    </script>
+</body>
+</html>

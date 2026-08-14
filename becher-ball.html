@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reso • Becher & Ball</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0f;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+        .zurueck {
+            align-self: flex-start;
+            color: #88ccff;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .zurueck:hover { color: #ffcc00; }
+        h2 {
+            font-size: 2rem;
+            color: #ffcc00;
+        }
+        .stufe { font-size: 1.3rem; color: #ffcc00; }
+        .hinweis { font-size: 1.2rem; min-height: 2rem; }
+        .becher-container { position: relative; height: 180px; margin: 1rem 0; }
+        .hand {
+            position: absolute; top: -10px; left: 0; width: 100%; height: 200px;
+            background: rgba(5,5,5,0.95); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: #ffcc00; z-index: 10;
+            opacity: 0; pointer-events: none;
+        }
+        .hand.aktiv { opacity: 1; }
+        .becher {
+            width: 85px; height: 125px;
+            background: #444466; border: 3px solid #8888aa;
+            border-radius: 0 0 40px 40px;
+            position: absolute; cursor: pointer;
+            transition: left 0.25s linear;
+        }
+        .becher.richtig { border-color: #4cd964; }
+        .becher.falsch { border-color: #ff3b30; }
+        .ball {
+            width: 28px; height: 28px;
+            background: #ffcc00; border-radius: 50%;
+            margin: 0 auto; margin-top: 85px;
+            display: none;
+        }
+        button {
+            padding: 0.7rem 1.8rem;
+            font-size: 1.1rem;
+            background: #ffcc00;
+            border: none; border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="zurueck">← Zurück</a>
+    <h2>Becher & Ball</h2>
+    <div class="stufe" id="stufeAnzeige">Stufe: Leicht</div>
+    <div class="hinweis" id="hinweis">Bereit?</div>
+    <div class="becher-container" id="becherBereich">
+        <div class="hand" id="verdeckHand">👋</div>
+    </div>
+    <button id="startBtn">Mischen starten</button>
+
+    <script>
+        const stufen = [
+            {name:"Leicht", anzahl:4, dauer:500, durchgaenge:12, verdeck:0},
+            {name:"Normal", anzahl:6, dauer:400, durchgaenge:20, verdeck:0},
+            {name:"Schwierig", anzahl:8, dauer:300, durchgaenge:30, verdeck:0},
+            {name:"Ultra", anzahl:10, dauer:220, durchgaenge:40, verdeck:0.2},
+            {name:"Hacker", anzahl:15, dauer:160, durchgaenge:55, verdeck:0.5},
+            {name:"Sigma", anzahl:20, dauer:100, durchgaenge:80, verdeck:0.98}
+        ];
+        let aktuelleStufe = 0, ballPos = 0, laeuft = false, becher = [];
+        const abstand = 100;
+
+        function baue() {
+            becherBereich.innerHTML = '<div class="hand" id="verdeckHand">👋</div>';
+            becher = [];
+            const anz = stufen[aktuelleStufe].anzahl;
+            becherBereich.style.width = anz * abstand + 'px';
+            for(let i=0; i<anz; i++) {
+                const b = document.createElement('div');
+                b.className = 'becher';
+                b.style.left = i * abstand + 'px';
+                b.innerHTML = '<div class="ball"></div>';
+                b.onclick = () => !laeuft && pruefe(b);
+                becherBereich.appendChild(b);
+                becher.push(b);
+            }
+        }
+
+        startBtn.onclick = () => {
+            if(laeuft) return;
+            laeuft = true;
+            startBtn.disabled = true;
+            ballPos = Math.floor(Math.random() * becher.length);
+            zeigeBall(true);
+            setTimeout(() => { zeigeBall(false); mische(0); }, 600);
+        };
+
+        function zeigeBall(s) {
+            becher.forEach(b => b.querySelector('.ball').style.display = 'none');
+            if(s) becher[ballPos].querySelector('.ball').style.display = 'block';
+        }
+
+        function zeigeHand(a) {
+            document.getElementById('verdeckHand').classList.toggle('aktiv', a);
+        }
+
+        function mische(s) {
+            const {durchgaenge, dauer, verdeck} = stufen[aktuelleStufe];
+            if(s >= durchgaenge) { laeuft = false; hinweis.textContent = "Wo ist der Ball?"; startBtn.disabled = false; return; }
+            const a = Math.floor(Math.random() * (becher.length - 1));
+            const b = a + 1;
+            const mit = Math.random() < verdeck;
+            tausche(a, b, dauer, mit, () => setTimeout(() => mische(s+1), 80));
+        }
+
+        function tausche(i1, i2, d, mit, fertig) {
+            const p1 = parseInt(becher[i1].style.left);
+            const p2 = parseInt(becher[i2].style.left);
+            if(mit) zeigeHand(true);
+            becher[i1].style.left = p2 + 'px';
+            becher[i2].style.left = p1 + 'px';
+            setTimeout(() => {
+                [becher[i1], becher[i2]] = [becher[i2], becher[i1]];
+                if(ballPos === i1) ballPos = i2;
+                else if(ballPos === i2) ballPos = i1;
+                if(mit) zeigeHand(false);
+                fertig();
+            }, d);
+        }
+
+        function pruefe(b) {
+            zeigeBall(true);
+            const pos = becher.indexOf(b);
+            if(pos === ballPos) {
+                hinweis.textContent = "✅ Richtig!";
+                if(aktuelleStufe < stufen.length -1) {
+                    aktuelleStufe++;
+                    setTimeout(() => { stufeAnzeige.textContent = "Stufe: " + stufen[aktuelleStufe].name; baue(); }, 1200);
+                } else hinweis.textContent = "🏆 Sigma geschafft!";
+            } else {
+                hinweis.textContent = "❌ Falsch! Zurück zu Anfang";
+                setTimeout(() => { aktuelleStufe = 0; baue(); }, 1500);
+            }
+        }
+
+        baue();
+    </script>
+</body>
+</html>

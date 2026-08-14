@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Rate die Zahl</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 900;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding-top: 4rem;
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 7.5rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin-bottom: 2.5rem;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+
+        .regenbogen {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 3.5rem;
+            background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+
+        input {
+            padding: 32px 45px;
+            font-size: 3.2rem;
+            font-weight: 900;
+            width: 420px;
+            text-align: center;
+            background: #151520;
+            border: 5px solid #444466;
+            color: #ffffff;
+            border-radius: 12px;
+            outline: none;
+        }
+
+        .hinweis {
+            margin-top: 4rem;
+            font-size: 3.8rem;
+            font-weight: 900;
+            min-height: 5rem;
+        }
+
+        .konfetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div class="regenbogen">Rate die Zahl</div>
+    <input type="number" id="eingabe" placeholder="Zahl">
+    <div class="hinweis" id="hinweis"></div>
+
+    <script>
+        const zufallsZahl = Math.floor(Math.random() * 1000) + 1;
+        const eingabeFeld = document.getElementById('eingabe');
+        const hinweisFeld = document.getElementById('hinweis');
+
+        eingabeFeld.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                pruefeZahl();
+            }
+        });
+
+        function pruefeZahl() {
+            const eingabe = Number(eingabeFeld.value.trim());
+            if (isNaN(eingabe) || eingabe < 1 || eingabe > 1000) {
+                hinweisFeld.textContent = '';
+                return;
+            }
+            if (eingabe < zufallsZahl) {
+                hinweisFeld.textContent = '➡️ Höher!';
+                hinweisFeld.style.color = '#4cd964';
+            } else if (eingabe > zufallsZahl) {
+                hinweisFeld.textContent = '⬅️ Niedriger!';
+                hinweisFeld.style.color = '#ff3b30';
+            } else {
+                hinweisFeld.textContent = '✅ Genau richtig!';
+                hinweisFeld.style.color = '#ffcc00';
+                eingabeFeld.disabled = true;
+                starteKonfetti();
+            }
+        }
+
+        function starteKonfetti() {
+            const canvas = document.createElement('canvas');
+            canvas.classList.add('konfetti');
+            document.body.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const farben = ['#ffcc00', '#ff3b30', '#4cd964', '#0091ff', '#af52de', '#ff9500'];
+            const stuecke = Array.from({ length: 220 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                r: Math.random() * 7 + 2,
+                d: Math.random() * 3.2 + 1,
+                farbe: farben[Math.floor(Math.random() * farben.length)],
+                winkel: Math.random() * Math.PI * 2
+            }));
+
+            let laufend = true;
+            function zeichne() {
+                if (!laufend) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                stuecke.forEach(s => {
+                    s.y += s.d;
+                    s.x += Math.sin(s.winkel) * 0.9;
+                    if (s.y > canvas.height) s.y = -12;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = s.farbe;
+                    ctx.fill();
+                });
+                requestAnimationFrame(zeichne);
+            }
+
+            zeichne();
+            setTimeout(() => { laufend = false; canvas.remove(); }, 6500);
+        }
+
+        window.addEventListener('resize', () => {
+            const c = document.querySelector('.konfetti');
+            if (c) { c.width = innerWidth; c.height = innerHeight; }
+        });
+    </script>
+</body>
+</html>
