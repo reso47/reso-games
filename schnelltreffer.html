@@ -6,45 +6,11 @@
     <title>Reso • Schnelltreffer</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0f;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        h1 {
-            color: #ffcc00;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 10px rgba(255,204,0,0.5);
-        }
-        canvas {
-            border: 5px solid #444466;
-            border-radius: 12px;
-            background: #151520;
-            cursor: crosshair;
-        }
-        #anzeige {
-            margin-top: 1.5rem;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #dddddd;
-        }
-        .btn {
-            margin-top: 1rem;
-            padding: 0.7rem 1.5rem;
-            font-size: 1rem;
-            background: #ffcc00;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        body { background: #0a0a0f; color: #ffffff; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+        h1 { color: #ffcc00; margin-bottom: 1.5rem; text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+        canvas { border: 5px solid #444466; border-radius: 12px; background: #151520; cursor: crosshair; }
+        #anzeige { margin-top: 1.5rem; font-size: 1.4rem; font-weight: bold; color: #dddddd; }
+        .btn { margin-top: 1rem; padding: 0.7rem 1.5rem; font-size: 1rem; background: #ffcc00; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -53,74 +19,74 @@
     <div id="anzeige"></div>
     <button class="btn" onclick="window.close()">Zurück zur Übersicht</button>
 
-    <script>
-        const c = document.getElementById('feld');
-        const ctx = c.getContext('2d');
-        const info = document.getElementById('anzeige');
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-        let ziel = { x: 0, y: 0, radius: 30 };
-        let punkte = 0;
-        let zeit = 30;
-        let laeuft = true;
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCQbprCOYFqrCI24UXG41Qij8e0F0RrNio",
+    authDomain: "reso-games.firebaseapp.com",
+    databaseURL: "https://reso-games-default-rtdb.firebaseio.com",
+    projectId: "reso-games",
+    storageBucket: "reso-games.appspot.com",
+    messagingSenderId: "760572638180",
+    appId: "1:760572638180:web:85545412c80726b68c4df1"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-        function neuesZiel() {
-            ziel.x = ziel.radius + Math.random() * (c.width - 2 * ziel.radius);
-            ziel.y = ziel.radius + Math.random() * (c.height - 2 * ziel.radius);
-        }
+const c = document.getElementById('feld');
+const ctx = c.getContext('2d');
+const info = document.getElementById('anzeige');
+const meinName = localStorage.getItem('resoGamertag') || 'Gast';
 
-        c.addEventListener('click', (e) => {
-            if (!laeuft) return;
-            const rect = c.getBoundingClientRect();
-            const mausX = e.clientX - rect.left;
-            const mausY = e.clientY - rect.top;
-            const abstand = Math.sqrt((mausX - ziel.x) ** 2 + (mausY - ziel.y) ** 2);
+let ziel = { x: 0, y: 0, radius: 30 };
+let punkte = 0, zeit = 30, laeuft = true;
 
-            if (abstand < ziel.radius) {
-                punkte += 10;
-                ziel.radius = Math.max(12, ziel.radius - 0.5);
-                neuesZiel();
-            } else {
-                punkte = Math.max(0, punkte - 2);
-            }
-        });
+function neuesZiel() {
+    ziel.x = ziel.radius + Math.random() * (c.width - 2 * ziel.radius);
+    ziel.y = ziel.radius + Math.random() * (c.height - 2 * ziel.radius);
+}
 
-        function zeichne() {
-            ctx.clearRect(0, 0, c.width, c.height);
-            ctx.beginPath();
-            ctx.arc(ziel.x, ziel.y, ziel.radius, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffcc00';
-            ctx.fill();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            info.textContent = `Punkte: ${punkte} | Zeit: ${zeit}s`;
-        }
-
-        function spielSchleife() {
-            if (!laeuft) return;
-            zeichne();
-            requestAnimationFrame(spielSchleife);
-        }
-
-        setInterval(() => {
-            if (zeit > 0) zeit--;
-            else {
-                laeuft = false;
-                info.textContent = `Zeit abgelaufen! Endstand: ${punkte} Punkte • Wurde gespeichert!`;
-                
-                // === BESTENLISTE SPEICHERN (NUR 1 EINTRAG PRO PERSON) ===
-                const meinName = localStorage.getItem('resoGamertag') || 'Gast';
-                let liste = JSON.parse(localStorage.getItem('resoListe_schnelltreffer') || '[]');
-                liste = liste.filter(e => e.name !== meinName); // Alten löschen
-                liste.push({ name: meinName, wert: punkte }); // Neuer Eintrag
-                liste.sort((a,b) => b.wert - a.wert); // Höchste Punkte zuerst
-                liste = liste.slice(0, 30);
-                localStorage.setItem('resoListe_schnelltreffer', JSON.stringify(liste));
-            }
-        }, 1000);
-
+c.addEventListener('click', (e) => {
+    if (!laeuft) return;
+    const rect = c.getBoundingClientRect();
+    const mausX = e.clientX - rect.left;
+    const mausY = e.clientY - rect.top;
+    const abstand = Math.sqrt((mausX - ziel.x) ** 2 + (mausY - ziel.y) ** 2);
+    if (abstand < ziel.radius) {
+        punkte += 10;
+        ziel.radius = Math.max(12, ziel.radius - 0.5);
         neuesZiel();
-        spielSchleife();
-    </script>
+    } else {
+        punkte = Math.max(0, punkte - 2);
+    }
+});
+
+function zeichne() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.beginPath();
+    ctx.arc(ziel.x, ziel.y, ziel.radius, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffcc00'; ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.stroke();
+    info.textContent = `Punkte: ${punkte} | Zeit: ${zeit}s`;
+}
+
+function spielSchleife() { if (laeuft) { zeichne(); requestAnimationFrame(spielSchleife); } }
+
+setInterval(async () => {
+    if (zeit > 0) zeit--;
+    else {
+        laeuft = false;
+        info.textContent = `Zeit abgelaufen! Endstand: ${punkte} Punkte • Wurde gespeichert!`;
+        const ref = db.ref('bestenliste/schnelltreffer/' + meinName);
+        const alterWert = await ref.once('value');
+        if(!alterWert.exists() || punkte > alterWert.val()) await ref.set(punkte);
+    }
+}, 1000);
+
+neuesZiel();
+spielSchleife();
+</script>
 </body>
 </html>

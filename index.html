@@ -15,46 +15,62 @@
             background: #0a0a0f;
             color: #ffffff;
             font-family: Arial, Helvetica, sans-serif;
-            font-weight: 900;
+            font-weight: 500;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             min-height: 100vh;
-            padding: 4rem 2rem;
+            padding: 2rem 1rem;
             text-align: center;
         }
 
         h1 {
-            font-size: 4rem;
-            font-weight: 900;
-            letter-spacing: 3px;
-            margin-bottom: 1rem;
+            font-size: 4.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
             color: #ffcc00;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
         }
 
         #willkommenName {
-            font-size: 1.2rem;
+            font-size: 1.8rem;
             color: #ffcc00;
             margin-bottom: 3rem;
-            opacity: 0.9;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #aendereNameBtn {
+            padding: 0.5rem 1.2rem;
+            font-size: 1.1rem;
+            background: #444466;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: normal;
         }
 
         .spiele-container {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 1300px;
+            max-width: 1400px;
         }
 
         .spiel-kasten {
             background: #151520;
-            border: 4px solid #444466;
-            border-radius: 16px;
-            padding: 2rem 1.5rem;
-            width: 320px;
+            border: 4px solid #5566aa;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 380px;
+            min-height: 280px;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
@@ -62,7 +78,8 @@
         }
 
         .spiel-titel {
-            font-size: 1.8rem;
+            font-size: 2rem;
+            font-weight: bold;
             background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
             -webkit-background-clip: text;
             background-clip: text;
@@ -70,130 +87,147 @@
         }
 
         .spiel-beschreibung {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: normal;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #dddddd;
         }
 
-        .button-reihe {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
         .spiel-button {
-            padding: 0.8rem 1.2rem;
-            font-size: 1rem;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
             font-weight: bold;
-            background: #ffcc00;
-            color: #0a0a0f;
+            background: #ffdd00;
+            color: #000;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: transform 0.2s ease;
+            margin-top: auto;
         }
 
         .spiel-button:hover {
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
 
-        .liste-button {
-            background: #444466;
-            color: white;
-        }
-
-        /* === NAMENS-EINGABE OVERLAY === */
+        /* === NAMENS-EINGABE OVERLAY (IMMER BEI NEUEN!) === */
         #nameOverlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.98);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 200;
+            z-index: 9999;
         }
 
         #nameOverlay h2 {
             color: #ffcc00;
-            font-size: 2.2rem;
-            margin-bottom: 2rem;
+            font-size: 2.8rem;
+            margin-bottom: 2.5rem;
         }
 
         #nameEingabe {
-            padding: 1rem 1.5rem;
-            font-size: 1.2rem;
-            border-radius: 10px;
-            border: 3px solid #ffcc00;
+            padding: 1.3rem 2rem;
+            font-size: 1.4rem;
+            border-radius: 12px;
+            border: 4px solid #ffcc00;
             background: #151520;
             color: white;
-            width: 300px;
+            width: 380px;
             text-align: center;
             margin-bottom: 1.5rem;
         }
 
         #nameSpeichern {
-            padding: 1rem 2.5rem;
-            font-size: 1.2rem;
+            padding: 1.2rem 3rem;
+            font-size: 1.4rem;
             font-weight: bold;
             background: #ffcc00;
-            color: #0a0a0f;
+            color: #000;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
         }
 
-        /* === BESTENLISTE OVERLAY === */
-        #listenOverlay {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #151520;
-            border: 4px solid #ffcc00;
-            border-radius: 16px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 420px;
-            max-height: 80vh;
-            overflow-y: auto;
-            z-index: 150;
-            display: none;
-        }
-
-        #listenOverlay h3 {
-            color: #ffcc00;
-            margin-bottom: 1.2rem;
-            font-size: 1.4rem;
-        }
-
-        .rangEintrag {
-            padding: 0.6rem 1rem;
-            margin: 0.3rem 0;
-            border-radius: 8px;
-            background: #222233;
-            text-align: left;
-        }
-
-        .rang1 { background: #ffd700; color: #000; font-weight: bold; }
-        .rang2 { background: #c0c0c0; color: #000; font-weight: bold; }
-        .rang3 { background: #cd7f32; color: #000; font-weight: bold; }
-
-        #schliessenListe {
+        .fehlerText {
+            color: #ff4444;
             margin-top: 1.2rem;
-            width: 100%;
-            padding: 0.7rem;
-            background: #e63946;
+            font-size: 1.2rem;
+        }
+
+        /* === BESTENLISTE BEREICH === */
+        .bestenliste-bereich {
+            margin-top: 4rem;
+            width: 90%;
+            max-width: 700px;
+            background: #151520;
+            border: 4px solid #5566aa;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .bestenliste-bereich h2 {
+            color: #ffcc00;
+            margin-bottom: 1.8rem;
+            font-size: 2rem;
+        }
+
+        .auswahl {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .spielAuswahl {
+            padding: 0.7rem 1.3rem;
+            font-size: 1.05rem;
+            background: #222244;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
             cursor: pointer;
+        }
+
+        .spielAuswahl.aktiv {
+            background: #ffcc00;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .tabellenKopf {
+            display: flex;
+            font-weight: bold;
+            color: #ffcc00;
+            padding: 0.8rem 0;
+            border-bottom: 3px solid #444466;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .eintrag {
+            display: flex;
+            padding: 0.7rem 0;
+            border-bottom: 2px solid #2a2a3a;
+            font-size: 1.05rem;
+        }
+
+        .platz { width: 15%; font-weight: bold; }
+        .name { width: 55%; text-align: left; padding-left: 0.5rem; }
+        .wert { width: 30%; text-align: right; }
+
+        .ladetext {
+            text-align: center;
+            color: #888;
+            padding: 1.5rem;
+            font-size: 1.1rem;
         }
 
         .versteckt { display: none !important; }
@@ -201,169 +235,254 @@
 </head>
 <body>
 
-    <!-- === NAMENS-EINGABE BEIM START === -->
+    <!-- === NAMENS-EINGABE OVERLAY (OHNE NAME KEIN SPIEL!) === -->
     <div id="nameOverlay">
-        <h2>👋 Gib deinen Gamertag ein!</h2>
+        <h2 id="nameTitel">👋 Gib deinen Gamertag ein!</h2>
         <input type="text" id="nameEingabe" placeholder="Dein Name...">
         <button id="nameSpeichern">Los geht's!</button>
+        <p id="nameFehler" class="fehlerText versteckt"></p>
     </div>
 
     <h1>Reso</h1>
-    <p id="willkommenName" class="versteckt">Willkommen, <span id="spielerName"></span>! 🎮</p>
+    <p id="willkommenName" class="versteckt">
+        Willkommen, <span id="spielerName"></span>! 🎮
+        <button id="aendereNameBtn">✏️ Namen ändern</button>
+    </p>
 
+    <!-- SPIELE-KÄSTCHEN (VIEL GRÖSSER!) -->
     <div class="spiele-container">
         <!-- Spiel 1: Rate die Zahl -->
         <div class="spiel-kasten">
             <h2 class="spiel-titel">Rate die Zahl</h2>
             <p class="spiel-beschreibung">Errate die geheime Zahl zwischen 1 und 1000. Nach jedem Versuch erfährst du, ob du höher oder niedriger raten musst.</p>
-            <div class="button-reihe">
-                <button class="spiel-button" onclick="window.open('rate-die-zahl.html', '_blank')">Jetzt spielen</button>
-            </div>
+            <button class="spiel-button" onclick="window.open('rate-die-zahl.html', '_blank')">Jetzt spielen</button>
         </div>
 
         <!-- Spiel 2: Becher & Ball -->
         <div class="spiel-kasten">
             <h2 class="spiel-titel">Becher & Ball</h2>
             <p class="spiel-beschreibung">Folge dem Ball! Von leicht bis schwer – immer mehr Becher, immer schnelleres Mischen.</p>
-            <div class="button-reihe">
-                <button class="spiel-button" onclick="window.open('becher-ball.html', '_blank')">Jetzt spielen</button>
-            </div>
+            <button class="spiel-button" onclick="window.open('becher-ball.html', '_blank')">Jetzt spielen</button>
         </div>
 
         <!-- Spiel 3: Wissens-Quiz -->
         <div class="spiel-kasten">
             <h2 class="spiel-titel">Wissens-Quiz</h2>
             <p class="spiel-beschreibung">Teste dein Wissen in verschiedenen Bereichen! Beantworte Fragen richtig und sammle Punkte.</p>
-            <div class="button-reihe">
-                <button class="spiel-button" onclick="window.open('quiz-spiel.html', '_blank')">Jetzt spielen</button>
-            </div>
+            <button class="spiel-button" onclick="window.open('quiz-spiel.html', '_blank')">Jetzt spielen</button>
         </div>
 
         <!-- Spiel 4: Reaktions-Tester -->
         <div class="spiel-kasten">
             <h2 class="spiel-titel">Reaktions-Tester</h2>
             <p class="spiel-beschreibung">Drücke sofort die Taste, sobald das Feld leuchtet! Finde heraus, wie schnell du reagierst.</p>
-            <div class="button-reihe">
-                <button class="spiel-button" onclick="window.open('reaktions-tester.html', '_blank')">Jetzt spielen</button>
-                <button class="spiel-button liste-button" data-spiel="reaktionstester" onclick="zeigeListe(this.dataset.spiel)">🏆 Bestenliste</button>
-            </div>
+            <button class="spiel-button" onclick="window.open('reaktions-tester.html', '_blank')">Jetzt spielen</button>
         </div>
 
         <!-- Spiel 5: Ausweich & Sammeln -->
         <div class="spiel-kasten">
             <h2 class="spiel-titel">Ausweich & Sammeln</h2>
             <p class="spiel-beschreibung">Sammle die Gegenstände, weiche Hindernissen aus und sichere dir die höchste Punktzahl!</p>
-            <div class="button-reihe">
-                <button class="spiel-button" onclick="window.open('ausweich-sammeln.html', '_blank')">Jetzt spielen</button>
-                <button class="spiel-button liste-button" data-spiel="ausweichsammeln" onclick="zeigeListe(this.dataset.spiel)">🏆 Bestenliste</button>
-            </div>
+            <button class="spiel-button" onclick="window.open('ausweich-sammeln.html', '_blank')">Jetzt spielen</button>
         </div>
 
         <!-- Spiel 6: Sprunglauf -->
         <div class="spiel-kasten">
             <h2 class="spiel-titel">Sprunglauf</h2>
             <p class="spiel-beschreibung">Laufe so weit wie möglich, springe über Hindernisse – nutze den Doppelsprung für schwierige Stellen!</p>
-            <div class="button-reihe">
-                <button class="spiel-button" onclick="window.open('sprunglauf.html', '_blank')">Jetzt spielen</button>
-                <button class="spiel-button liste-button" data-spiel="sprunglauf" onclick="zeigeListe(this.dataset.spiel)">🏆 Bestenliste</button>
-            </div>
+            <button class="spiel-button" onclick="window.open('sprunglauf.html', '_blank')">Jetzt spielen</button>
         </div>
 
         <!-- Spiel 7: Schnelltreffer -->
         <div class="spiel-kasten">
             <h2 class="spiel-titel">Schnelltreffer</h2>
             <p class="spiel-beschreibung">Klicke schnell und genau auf die Ziele! Sie werden kleiner – teste Treffsicherheit und Reaktion.</p>
-            <div class="button-reihe">
-                <button class="spiel-button" onclick="window.open('schnelltreffer.html', '_blank')">Jetzt spielen</button>
-                <button class="spiel-button liste-button" data-spiel="schnelltreffer" onclick="zeigeListe(this.dataset.spiel)">🏆 Bestenliste</button>
-            </div>
+            <button class="spiel-button" onclick="window.open('schnelltreffer.html', '_blank')">Jetzt spielen</button>
         </div>
     </div>
 
-    <!-- === BESTENLISTE FENSTER === -->
-    <div id="listenOverlay">
-        <h3 id="listenTitel">🏆 Bestenliste</h3>
-        <div id="listenInhalt"></div>
-        <button id="schliessenListe">Schließen</button>
+    <!-- === BESTENLISTE BEREICH === -->
+    <div class="bestenliste-bereich">
+        <h2>🏆 Bestenliste</h2>
+        <div class="auswahl">
+            <button class="spielAuswahl aktiv" data-spiel="reaktionstester">⏱️ Reaktion</button>
+            <button class="spielAuswahl" data-spiel="schnelltreffer">🎯 Treffer</button>
+            <button class="spielAuswahl" data-spiel="ausweichsammeln">💎 Sammeln</button>
+            <button class="spielAuswahl" data-spiel="sprunglauf">🏃 Sprunglauf</button>
+        </div>
+        <div class="tabellenKopf">
+            <span class="platz">#</span>
+            <span class="name">Name</span>
+            <span class="wert">Wert</span>
+        </div>
+        <div id="listeInhalt" class="ladetext">Lade Daten...</div>
     </div>
 
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
 <script>
-let meinName = localStorage.getItem('resoGamertag') || '';
-const nameOverlay = document.getElementById('nameOverlay');
-const nameEingabe = document.getElementById('nameEingabe');
-const nameSpeichern = document.getElementById('nameSpeichern');
-const willkommenName = document.getElementById('willkommenName');
-const spielerName = document.getElementById('spielerName');
-const listenOverlay = document.getElementById('listenOverlay');
-const listenTitel = document.getElementById('listenTitel');
-const listenInhalt = document.getElementById('listenInhalt');
+        // DEINE FIREBASE-DATEN
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQbprCOYFqrCI24UXG41Qij8e0F0RrNio",
+            authDomain: "reso-games.firebaseapp.com",
+            databaseURL: "https://reso-games-default-rtdb.firebaseio.com",
+            projectId: "reso-games",
+            storageBucket: "reso-games.appspot.com",
+            messagingSenderId: "760572638180",
+            appId: "1:760572638180:web:85545412c80726b68c4df1"
+        };
 
-// Bereits Name gespeichert? → Überspringe Eingabe
-if(meinName) {
-    nameOverlay.classList.add('versteckt');
-    spielerName.textContent = meinName;
-    willkommenName.classList.remove('versteckt');
-}
+        // FIREBASE STARTEN
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-// Name speichern
-nameSpeichern.addEventListener('click', () => {
-    let name = nameEingabe.value.trim();
-    if(name.length < 2) { alert('Bitte gib mindestens 2 Zeichen ein!'); return; }
-    meinName = name;
-    localStorage.setItem('resoGamertag', meinName);
-    spielerName.textContent = meinName;
-    willkommenName.classList.remove('versteckt');
-    nameOverlay.classList.add('versteckt');
-});
+        // ELEMENTE
+        const nameOverlay = document.getElementById('nameOverlay');
+        const nameTitel = document.getElementById('nameTitel');
+        const nameEingabe = document.getElementById('nameEingabe');
+        const nameSpeichern = document.getElementById('nameSpeichern');
+        const nameFehler = document.getElementById('nameFehler');
+        const willkommenName = document.getElementById('willkommenName');
+        const spielerName = document.getElementById('spielerName');
+        const aendereNameBtn = document.getElementById('aendereNameBtn');
+        const listeInhalt = document.getElementById('listeInhalt');
+        const auswahlBtns = document.querySelectorAll('.spielAuswahl');
 
-// Bestenliste anzeigen
-function zeigeListe(spielKey) {
-    if(!meinName) { alert('Gib zuerst deinen Namen ein!'); return; }
-    let eintraege = JSON.parse(localStorage.getItem('resoListe_' + spielKey) || '[]');
-    
-    // Sortierung: Reaktionstester → kleinste Zeit zuerst, andere → höchste Punkte zuerst
-    if(spielKey === 'reaktionstester') {
-        eintraege.sort((a,b) => a.wert - b.wert);
-    } else {
-        eintraege.sort((a,b) => b.wert - a.wert);
-    }
-    eintraege = eintraege.slice(0, 30);
+        let ausgewaehltesSpiel = 'reaktionstester';
+        let gespeicherterName = localStorage.getItem('resoGamertag') || '';
+        let istAenderung = false;
 
-    listenTitel.textContent = '🏆 Bestenliste - ' + spielKey;
-    listenInhalt.innerHTML = '';
-    if(eintraege.length === 0) {
-        listenInhalt.innerHTML = '<p style="opacity:0.7">Noch keine Einträge! Sei der Erste!</p>';
-    } else {
-        eintraege.forEach((e, i) => {
-            let klasse = '';
-            if(i===0) klasse='rang1';
-            else if(i===1) klasse='rang2';
-            else if(i===2) klasse='rang3';
-            let einheit = spielKey === 'reaktionstester' ? ' ms' : ' Punkte';
-            listenInhalt.innerHTML += `<div class="rangEintrag ${klasse}">${i+1}. ${e.name} → ${e.wert}${einheit}</div>`;
+        // ✅ BEIM LADEN: Wenn KEIN Name → Eingabe bleibt OFFEN!
+        window.onload = () => {
+            if (gespeicherterName) {
+                // Bereits Name vorhanden → Eingabe verstecken & Seite zeigen
+                nameOverlay.classList.add('versteckt');
+                spielerName.textContent = gespeicherterName;
+                willkommenName.classList.remove('versteckt');
+            }
+            // Wenn NEUER Besucher → Overlay BLEIBT OFFEN! Keine Seite sichtbar!
+            zeigeBestenliste();
+        };
+
+        // ✅ NAMEN ÄNDERN
+        aendereNameBtn.addEventListener('click', () => {
+            istAenderung = true;
+            nameTitel.textContent = '✏️ Gib deinen neuen Namen ein!';
+            nameEingabe.value = '';
+            nameFehler.classList.add('versteckt');
+            nameOverlay.classList.remove('versteckt');
         });
-    }
-    listenOverlay.style.display = 'block';
-}
 
-document.getElementById('schliessenListe').addEventListener('click', () => {
-    listenOverlay.style.display = 'none';
-});
+        // ✅ NAMEN SPEICHERN & PRÜFEN
+        nameSpeichern.addEventListener('click', async () => {
+            let neuerName = nameEingabe.value.trim();
+            nameFehler.classList.add('versteckt');
+            
+            if (!neuerName) { zeigeFehler('Bitte gib einen Namen ein!'); return; }
+            if (neuerName.length < 2) { zeigeFehler('Name min. 2 Buchstaben!'); return; }
 
-// === Funktion zum Speichern von Ergebnissen (wird von den Spiel-Seiten aufgerufen!) ===
-function speichereErgebnis(spielKey, wert) {
-    if(!meinName) return;
-    let liste = JSON.parse(localStorage.getItem('resoListe_' + spielKey) || '[]');
-    liste.push({ name: meinName, wert: wert });
-    // Behalte nur Top 30
-    if(spielKey === 'reaktionstester') {
-        liste.sort((a,b) => a.wert - b.wert);
-    } else {
-        liste.sort((a,b) => b.wert - a.wert);
-    }
-    liste = liste.slice(0, 30);
-    localStorage.setItem('resoListe_' + spielKey, JSON.stringify(liste));
-}
+            // Selber Name? → Schließen
+            if (neuerName === gespeicherterName) {
+                nameOverlay.classList.add('versteckt');
+                return;
+            }
+
+            // Prüfe: Name bereits vergeben?
+            const namenRef = db.ref('namen/' + neuerName);
+            const pruefung = await namenRef.once('value');
+            
+            if (pruefung.exists()) {
+                zeigeFehler('❌ Dieser Name ist bereits vergeben!');
+                return;
+            }
+
+            // Bei Namensänderung → ALLE ERGEBNISSE MITNEHMEN!
+            if (istAenderung && gespeicherterName) {
+                await uebertrageAlleErgebnisse(gespeicherterName, neuerName);
+                await db.ref('namen/' + gespeicherterName).remove();
+            }
+
+            // ✅ Neuen Namen sperren & speichern
+            await namenRef.set({ vergeben: true });
+            gespeicherterName = neuerName;
+            localStorage.setItem('resoGamertag', neuerName);
+
+            // ✅ Erst JETZT wird die Seite sichtbar!
+            spielerName.textContent = neuerName;
+            willkommenName.classList.remove('versteckt');
+            nameOverlay.classList.add('versteckt');
+            nameTitel.textContent = '👋 Gib deinen Gamertag ein!';
+        });
+
+        // ALLE ERGEBNISSE ÜBERTRAGEN
+        async function uebertrageAlleErgebnisse(vonName, aufName) {
+            const spiele = ['reaktionstester', 'schnelltreffer', 'ausweichsammeln', 'sprunglauf'];
+            for (const spiel of spiele) {
+                const altRef = db.ref('bestenliste/' + spiel + '/' + vonName);
+                const neuRef = db.ref('bestenliste/' + spiel + '/' + aufName);
+                const wert = await altRef.once('value');
+                if (wert.exists()) {
+                    await neuRef.set(wert.val());
+                    await altRef.remove();
+                }
+            }
+        }
+
+        // SPIEL AUSWÄHLEN
+        auswahlBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                auswahlBtns.forEach(b => b.classList.remove('aktiv'));
+                btn.classList.add('aktiv');
+                ausgewaehltesSpiel = btn.dataset.spiel;
+                zeigeBestenliste();
+            });
+        });
+
+        // BESTENLISTE LADEN
+        async function zeigeBestenliste() {
+            listeInhalt.innerHTML = '<span class="ladetext">Lade...</span>';
+            const ref = db.ref('bestenliste/' + ausgewaehltesSpiel);
+            const daten = await ref.once('value');
+            const eintraege = daten.val() || {};
+
+            let liste = Object.entries(eintraege).map(([name, wert]) => ({ name, wert }));
+
+            if (liste.length === 0) {
+                listeInhalt.innerHTML = '<p class="ladetext">Noch keine Einträge. Spiele zuerst!</p>';
+                return;
+            }
+
+            // Sortieren
+            if (ausgewaehltesSpiel === 'reaktionstester') {
+                liste.sort((a,b) => a.wert - b.wert);
+            } else {
+                liste.sort((a,b) => b.wert - a.wert);
+            }
+
+            // Anzeigen
+            let html = '';
+            liste.forEach((e, i) => {
+                let einheit = ausgewaehltesSpiel === 'reaktionstester' ? ' ms' : '';
+                html += `
+                    <div class="eintrag">
+                        <span class="platz">${i+1}.</span>
+                        <span class="name">${e.name}</span>
+                        <span class="wert">${e.wert}${einheit}</span>
+                    </div>
+                `;
+            });
+            listeInhalt.innerHTML = html;
+        }
+
+        function zeigeFehler(text) {
+            nameFehler.textContent = text;
+            nameFehler.classList.remove('versteckt');
+        }
+
+        // BESTENLISTE LIVE AKTUALISIEREN
+        db.ref('bestenliste/' + ausgewaehltesSpiel).on('value', zeigeBestenliste);
 </script>
 </body>
 </html>

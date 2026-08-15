@@ -6,44 +6,11 @@
     <title>Reso • Sprunglauf</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0f;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        h1 {
-            color: #ffcc00;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 10px rgba(255,204,0,0.5);
-        }
-        canvas {
-            border: 5px solid #444466;
-            border-radius: 12px;
-            background: #151520;
-        }
-        #anzeige {
-            margin-top: 1.5rem;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #dddddd;
-        }
-        .btn {
-            margin-top: 1rem;
-            padding: 0.7rem 1.5rem;
-            font-size: 1rem;
-            background: #ffcc00;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        body { background: #0a0a0f; color: #ffffff; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+        h1 { color: #ffcc00; margin-bottom: 1.5rem; text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+        canvas { border: 5px solid #444466; border-radius: 12px; background: #151520; }
+        #anzeige { margin-top: 1.5rem; font-size: 1.4rem; font-weight: bold; color: #dddddd; }
+        .btn { margin-top: 1rem; padding: 0.7rem 1.5rem; font-size: 1rem; background: #ffcc00; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -52,116 +19,97 @@
     <div id="anzeige"></div>
     <button class="btn" onclick="window.close()">Zurück zur Übersicht</button>
 
-    <script>
-        const c = document.getElementById('feld');
-        const ctx = c.getContext('2d');
-        const info = document.getElementById('anzeige');
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-        let spieler = {
-            x: 80,
-            y: 250,
-            w: 35,
-            h: 35,
-            dy: 0,
-            sprungKraft: 12,
-            aufBoden: true,
-            sprungAnzahl: 0,
-            maxSprünge: 2 // Doppelsprung aktiviert
-        };
-        const schwerkraft = 0.6;
-        let hindernisse = [];
-        let geschwindigkeit = 4;
-        let punkte = 0;
-        let laeuft = true;
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCQbprCOYFqrCI24UXG41Qij8e0F0RrNio",
+    authDomain: "reso-games.firebaseapp.com",
+    databaseURL: "https://reso-games-default-rtdb.firebaseio.com",
+    projectId: "reso-games",
+    storageBucket: "reso-games.appspot.com",
+    messagingSenderId: "760572638180",
+    appId: "1:760572638180:web:85545412c80726b68c4df1"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-        // Steuerung mit Leertaste oder Pfeil nach oben
-        document.addEventListener('keydown', e => {
-            if ((e.code === 'Space' || e.key === 'ArrowUp') && laeuft) {
-                if (spieler.sprungAnzahl < spieler.maxSprünge) {
-                    spieler.dy = -spieler.sprungKraft;
-                    spieler.aufBoden = false;
-                    spieler.sprungAnzahl++;
-                }
-            }
-        });
+const c = document.getElementById('feld');
+const ctx = c.getContext('2d');
+const info = document.getElementById('anzeige');
+const meinName = localStorage.getItem('resoGamertag') || 'Gast';
 
-        function neuesHindernis() {
-            hindernisse.push({
-                x: c.width,
-                y: 280,
-                w: 30 + Math.random() * 20,
-                h: 40 + Math.random() * 20
-            });
+let spieler = { x: 80, y: 250, w: 35, h: 35, dy: 0, sprungKraft: 12, aufBoden: true, sprungAnzahl: 0, maxSprünge: 2 };
+const schwerkraft = 0.6;
+let hindernisse = [], geschwindigkeit = 4, punkte = 0, laeuft = true;
+
+document.addEventListener('keydown', e => {
+    if ((e.code === 'Space' || e.key === 'ArrowUp') && laeuft) {
+        if (spieler.sprungAnzahl < spieler.maxSprünge) {
+            spieler.dy = -spieler.sprungKraft;
+            spieler.aufBoden = false;
+            spieler.sprungAnzahl++;
         }
+    }
+});
 
-        function bewegeSpieler() {
-            spieler.dy += schwerkraft;
-            spieler.y += spieler.dy;
+function neuesHindernis() {
+    hindernisse.push({ x: c.width, y: 280, w: 30 + Math.random() * 20, h: 40 + Math.random() * 20 });
+}
 
-            // Bodenberührung
-            if (spieler.y + spieler.h >= 320) {
-                spieler.y = 320 - spieler.h;
-                spieler.dy = 0;
-                spieler.aufBoden = true;
-                spieler.sprungAnzahl = 0; // Sprünge zurücksetzen
-            }
+function bewegeSpieler() {
+    spieler.dy += schwerkraft;
+    spieler.y += spieler.dy;
+    if (spieler.y + spieler.h >= 320) {
+        spieler.y = 320 - spieler.h;
+        spieler.dy = 0;
+        spieler.aufBoden = true;
+        spieler.sprungAnzahl = 0;
+    }
+}
+
+function bewegeHindernisse() {
+    for (let i = hindernisse.length - 1; i >= 0; i--) {
+        hindernisse[i].x -= geschwindigkeit;
+        if (hindernisse[i].x + hindernisse[i].w < 0) {
+            hindernisse.splice(i, 1);
+            punkte++;
+            if (punkte % 20 === 0) geschwindigkeit += 0.3;
         }
+    }
+}
 
-        function bewegeHindernisse() {
-            for (let i = hindernisse.length - 1; i >= 0; i--) {
-                hindernisse[i].x -= geschwindigkeit;
-                if (hindernisse[i].x + hindernisse[i].w < 0) {
-                    hindernisse.splice(i, 1);
-                    punkte++;
-                    // Geschwindigkeit langsam erhöhen
-                    if (punkte % 20 === 0) geschwindigkeit += 0.3;
-                }
-            }
-        }
+function prüfeKollision() {
+    return hindernisse.some(h => spieler.x < h.x + h.w && spieler.x + spieler.w > h.x && spieler.y < h.y + h.h && spieler.y + spieler.h > h.y);
+}
 
-        function prüfeKollision() {
-            return hindernisse.some(h =>
-                spieler.x < h.x + h.w &&
-                spieler.x + spieler.w > h.x &&
-                spieler.y < h.y + h.h &&
-                spieler.y + spieler.h > h.y
-            );
-        }
+function zeichne() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle = '#ffcc00'; ctx.fillRect(spieler.x, spieler.y, spieler.w, spieler.h);
+    ctx.fillStyle = '#444466'; ctx.fillRect(0, 320, c.width, 3);
+    ctx.fillStyle = '#ff4444'; hindernisse.forEach(h => ctx.fillRect(h.x, h.y, h.w, h.h));
+    info.textContent = `Punkte: ${punkte} | Doppelsprung verfügbar`;
+}
 
-        function zeichne() {
-            ctx.clearRect(0, 0, c.width, c.height);
-            ctx.fillStyle = '#ffcc00';
-            ctx.fillRect(spieler.x, spieler.y, spieler.w, spieler.h);
-            ctx.fillStyle = '#444466';
-            ctx.fillRect(0, 320, c.width, 3);
-            ctx.fillStyle = '#ff4444';
-            hindernisse.forEach(h => ctx.fillRect(h.x, h.y, h.w, h.h));
-            info.textContent = `Punkte: ${punkte} | Doppelsprung verfügbar`;
-        }
+async function spielSchleife() {
+    if (!laeuft) return;
+    bewegeSpieler();
+    bewegeHindernisse();
+    if (prüfeKollision()) {
+        laeuft = false;
+        info.textContent = `Spiel vorbei! Endstand: ${punkte} Punkte • Wurde gespeichert!`;
+        const ref = db.ref('bestenliste/sprunglauf/' + meinName);
+        const alterWert = await ref.once('value');
+        if(!alterWert.exists() || punkte > alterWert.val()) await ref.set(punkte);
+        return;
+    }
+    zeichne();
+    requestAnimationFrame(spielSchleife);
+}
 
-        function spielSchleife() {
-            if (!laeuft) return;
-            bewegeSpieler();
-            bewegeHindernisse();
-            if (prüfeKollision()) {
-                laeuft = false;
-                info.textContent = `Spiel vorbei! Endstand: ${punkte} Punkte • Wurde gespeichert!`;
-                
-                // === BESTENLISTE SPEICHERN (NUR 1 EINTRAG PRO PERSON) ===
-                const meinName = localStorage.getItem('resoGamertag') || 'Gast';
-                let liste = JSON.parse(localStorage.getItem('resoListe_sprunglauf') || '[]');
-                liste = liste.filter(e => e.name !== meinName); // Alten löschen
-                liste.push({ name: meinName, wert: punkte }); // Neuer Eintrag
-                liste.sort((a,b) => b.wert - a.wert); // Höchste Punkte zuerst
-                liste = liste.slice(0, 30);
-                localStorage.setItem('resoListe_sprunglauf', JSON.stringify(liste));
-            }
-            zeichne();
-            requestAnimationFrame(spielSchleife);
-        }
-
-        setInterval(neuesHindernis, 1200 + Math.random() * 800);
-        spielSchleife();
-    </script>
+setInterval(neuesHindernis, 1200 + Math.random() * 800);
+spielSchleife();
+</script>
 </body>
 </html>

@@ -6,44 +6,11 @@
     <title>Reso • Ausweich & Sammeln</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0f;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        h1 {
-            color: #ffcc00;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 10px rgba(255,204,0,0.5);
-        }
-        canvas {
-            border: 5px solid #444466;
-            border-radius: 12px;
-            background: #151520;
-        }
-        #anzeige {
-            margin-top: 1.5rem;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #dddddd;
-        }
-        .btn {
-            margin-top: 1rem;
-            padding: 0.7rem 1.5rem;
-            font-size: 1rem;
-            background: #ffcc00;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        body { background: #0a0a0f; color: #ffffff; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+        h1 { color: #ffcc00; margin-bottom: 1.5rem; text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+        canvas { border: 5px solid #444466; border-radius: 12px; background: #151520; }
+        #anzeige { margin-top: 1.5rem; font-size: 1.4rem; font-weight: bold; color: #dddddd; }
+        .btn { margin-top: 1rem; padding: 0.7rem 1.5rem; font-size: 1rem; background: #ffcc00; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -52,100 +19,90 @@
     <div id="anzeige"></div>
     <button class="btn" onclick="window.close()">Zurück zur Übersicht</button>
 
-    <script>
-        const c = document.getElementById('feld');
-        const ctx = c.getContext('2d');
-        const info = document.getElementById('anzeige');
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-        let spieler = { x: 300, y: 400, w: 40, h: 40, speed: 7 };
-        let ziel = { x: 0, y: 0, w: 35, h: 35 };
-        let hindernisse = [];
-        let punkte = 0;
-        let leben = 3;
-        let tasten = {};
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCQbprCOYFqrCI24UXG41Qij8e0F0RrNio",
+    authDomain: "reso-games.firebaseapp.com",
+    databaseURL: "https://reso-games-default-rtdb.firebaseio.com",
+    projectId: "reso-games",
+    storageBucket: "reso-games.appspot.com",
+    messagingSenderId: "760572638180",
+    appId: "1:760572638180:web:85545412c80726b68c4df1"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-        document.addEventListener('keydown', e => tasten[e.key] = true);
-        document.addEventListener('keyup', e => tasten[e.key] = false);
+const c = document.getElementById('feld');
+const ctx = c.getContext('2d');
+const info = document.getElementById('anzeige');
+const meinName = localStorage.getItem('resoGamertag') || 'Gast';
 
-        function neuesZiel() {
-            ziel.x = Math.random() * (c.width - ziel.w);
-            ziel.y = Math.random() * (c.height - ziel.h);
+let spieler = { x: 300, y: 400, w: 40, h: 40, speed: 7 };
+let ziel = { x: 0, y: 0, w: 35, h: 35 };
+let hindernisse = [];
+let punkte = 0, leben = 3, tasten = {};
+
+document.addEventListener('keydown', e => tasten[e.key] = true);
+document.addEventListener('keyup', e => tasten[e.key] = false);
+
+function neuesZiel() {
+    ziel.x = Math.random() * (c.width - ziel.w);
+    ziel.y = Math.random() * (c.height - ziel.h);
+}
+
+function neuesHindernis() {
+    hindernisse.push({ x: Math.random() * c.width, y: -40, w: 35, h: 35, speed: 2 + Math.random() * 2 });
+}
+
+function bewegeSpieler() {
+    if (tasten['ArrowLeft'] && spieler.x > 0) spieler.x -= spieler.speed;
+    if (tasten['ArrowRight'] && spieler.x < c.width - spieler.w) spieler.x += spieler.speed;
+    if (tasten['ArrowUp'] && spieler.y > 0) spieler.y -= spieler.speed;
+    if (tasten['ArrowDown'] && spieler.y < c.height - spieler.h) spieler.y += spieler.speed;
+}
+
+function prüfeTreffer(a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+async function spielEnde() {
+    info.textContent = `Spiel vorbei! Endstand: ${punkte} Punkte • Wurde gespeichert!`;
+    const ref = db.ref('bestenliste/ausweichsammeln/' + meinName);
+    const alterWert = await ref.once('value');
+    if(!alterWert.exists() || punkte > alterWert.val()) await ref.set(punkte);
+}
+
+function aktualisiere() {
+    bewegeSpieler();
+    if (prüfeTreffer(spieler, ziel)) { punkte += 10; neuesZiel(); }
+    for (let i = hindernisse.length - 1; i >= 0; i--) {
+        hindernisse[i].y += hindernisse[i].speed;
+        if (hindernisse[i].y > c.height) {
+            hindernisse.splice(i, 1);
+        } else if (prüfeTreffer(spieler, hindernisse[i])) {
+            leben--;
+            hindernisse.splice(i, 1);
+            if (leben <= 0) spielEnde();
         }
+    }
+}
 
-        function neuesHindernis() {
-            hindernisse.push({
-                x: Math.random() * c.width,
-                y: -40,
-                w: 35,
-                h: 35,
-                speed: 2 + Math.random() * 2
-            });
-        }
+function zeichne() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle = '#ffcc00'; ctx.fillRect(spieler.x, spieler.y, spieler.w, spieler.h);
+    ctx.fillStyle = '#44dd88'; ctx.fillRect(ziel.x, ziel.y, ziel.w, ziel.h);
+    ctx.fillStyle = '#ff4444'; hindernisse.forEach(h => ctx.fillRect(h.x, h.y, h.w, h.h));
+    info.textContent = `Punkte: ${punkte} | Leben: ${leben}`;
+}
 
-        function bewegeSpieler() {
-            if (tasten['ArrowLeft'] && spieler.x > 0) spieler.x -= spieler.speed;
-            if (tasten['ArrowRight'] && spieler.x < c.width - spieler.w) spieler.x += spieler.speed;
-            if (tasten['ArrowUp'] && spieler.y > 0) spieler.y -= spieler.speed;
-            if (tasten['ArrowDown'] && spieler.y < c.height - spieler.h) spieler.y += spieler.speed;
-        }
+function spielSchleife() { if (leben > 0) { aktualisiere(); zeichne(); requestAnimationFrame(spielSchleife); } }
 
-        function prüfeTreffer(a, b) {
-            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-        }
-
-        function aktualisiere() {
-            bewegeSpieler();
-
-            if (prüfeTreffer(spieler, ziel)) {
-                punkte += 10;
-                neuesZiel();
-            }
-
-            for (let i = hindernisse.length - 1; i >= 0; i--) {
-                hindernisse[i].y += hindernisse[i].speed;
-                if (hindernisse[i].y > c.height) {
-                    hindernisse.splice(i, 1);
-                } else if (prüfeTreffer(spieler, hindernisse[i])) {
-                    leben--;
-                    hindernisse.splice(i, 1);
-                    if (leben <= 0) {
-                        info.textContent = `Spiel vorbei! Endstand: ${punkte} Punkte • Wurde gespeichert!`;
-                        
-                        // === BESTENLISTE SPEICHERN (NUR 1 EINTRAG PRO PERSON) ===
-                        const meinName = localStorage.getItem('resoGamertag') || 'Gast';
-                        let liste = JSON.parse(localStorage.getItem('resoListe_ausweichsammeln') || '[]');
-                        liste = liste.filter(e => e.name !== meinName); // Alten löschen
-                        liste.push({ name: meinName, wert: punkte }); // Neuer Eintrag
-                        liste.sort((a,b) => b.wert - a.wert); // Höchste Punkte zuerst
-                        liste = liste.slice(0, 30);
-                        localStorage.setItem('resoListe_ausweichsammeln', JSON.stringify(liste));
-                    }
-                }
-            }
-        }
-
-        function zeichne() {
-            ctx.clearRect(0, 0, c.width, c.height);
-            ctx.fillStyle = '#ffcc00';
-            ctx.fillRect(spieler.x, spieler.y, spieler.w, spieler.h);
-            ctx.fillStyle = '#44dd88';
-            ctx.fillRect(ziel.x, ziel.y, ziel.w, ziel.h);
-            ctx.fillStyle = '#ff4444';
-            hindernisse.forEach(h => ctx.fillRect(h.x, h.y, h.w, h.h));
-            info.textContent = `Punkte: ${punkte} | Leben: ${leben}`;
-        }
-
-        function spielSchleife() {
-            if (leben > 0) {
-                aktualisiere();
-                zeichne();
-                requestAnimationFrame(spielSchleife);
-            }
-        }
-
-        neuesZiel();
-        setInterval(neuesHindernis, 800);
-        spielSchleife();
-    </script>
+neuesZiel();
+setInterval(neuesHindernis, 800);
+spielSchleife();
+</script>
 </body>
 </html>
